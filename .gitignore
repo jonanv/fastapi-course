@@ -4,3 +4,6 @@ venv/
 
 # files
 .env
+
+# database
+.blog.db
