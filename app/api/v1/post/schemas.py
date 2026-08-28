@@ -1,5 +1,6 @@
+from fastapi import Form
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Optional, List, Literal
+from typing import Annotated, Optional, List, Literal
 
 from ..author.schemas import Author
 from ..tag.schemas import Tag
@@ -11,6 +12,7 @@ class PostBase(BaseModel):
     # tags: Optional[List[Tag]] = []
     tags: Optional[List[Tag]] = Field(default_factory=list)
     author: Optional[Author] = None
+    image_url: Optional[str] = None
     
     model_config = ConfigDict(from_attributes=True)
     
