@@ -45,6 +45,16 @@ class PostCreate(BaseModel):
             if world in value.lower():
                 raise ValueError(f"El título no puede contener la palabra: { world }")
         return value
+    
+    @classmethod
+    def as_form(
+        cls, 
+        title: Annotated[str, Form(min_lenght=3)],
+        content: Annotated[str, Form(min_length=10)],
+        tags: Annotated[Optional[List[str]], Form()] = None
+    ):
+        tags_obj = (Tag(name=t) for t in (tags or []))
+        return cls(title=title, content=content, tags=tags_obj)
 
 class PostUpdate(BaseModel):
     title: Optional[str] = Field(
