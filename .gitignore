@@ -6,4 +6,4 @@ venv/
 .env
 
 # database
-.blog.db
+blog.db
