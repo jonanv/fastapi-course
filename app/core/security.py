@@ -8,7 +8,7 @@ import jwt
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 
 SECRET_KEY = os.getenv("SECRET_KEY", "change-me-in-prod")
-ALGORITHM = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "HS256")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
 
