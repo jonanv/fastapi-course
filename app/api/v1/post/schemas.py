@@ -1,0 +1,76 @@
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+from typing import Optional, List, Literal
+
+from ..author.schemas import Author
+from ..tag.schemas import Tag
+
+class PostBase(BaseModel):
+    title: str
+    # content: Optional[str] = "Contenido por defecto"
+    content: str
+    # tags: Optional[List[Tag]] = []
+    tags: Optional[List[Tag]] = Field(default_factory=list)
+    author: Optional[Author] = None
+    
+    model_config = ConfigDict(from_attributes=True)
+    
+class PostCreate(BaseModel):
+    title: str = Field(
+        ...,
+        min_length=3,
+        max_length=100,
+        description="Titulo del post (mínimo 3 caracteres y máximo 100)",
+        examples=["Mi primer post con FastAPI"]
+    )
+    content: Optional[str] = Field(
+        default="Contenido no disponible",
+        min_length=10,
+        max_length=100,
+        description="Contenido del post (mínimo 10 caracteres)",
+        examples=["Este es un contenido valido por que tiene 10 caracteres o más"]
+    )
+    # tags: List[Tag] = []
+    tags: List[Tag] = Field(default_factory=list)
+    # author: Optional[Author] = None
+    
+    
+    @field_validator("title")
+    @classmethod
+    def not_allowed_title(cls, value: str) -> str:
+        list_not_allowed = ["spam", "prueba"]
+        
+        for world in list_not_allowed:
+            if world in value.lower():
+                raise ValueError(f"El título no puede contener la palabra: { world }")
+        return value
+
+class PostUpdate(BaseModel):
+    title: Optional[str] = Field(
+        None, 
+        min_length=3,
+        max_length=100
+    )
+    content: Optional[str] = None
+    
+class PostPublic(PostBase):
+    id: int
+    
+    model_config = ConfigDict(from_attributes=True)
+    
+class PostSummary(BaseModel):
+    id: int
+    title: str
+    
+    model_config = ConfigDict(from_attributes=True)
+    
+class PaginatedPost(BaseModel):
+    page: int
+    per_page: int
+    total: int
+    total_pages: int
+    has_prev: bool
+    has_next: bool
+    order_by: Literal["id", "title"]
+    direction: Literal["asc", "desc"]
+    search: Optional[str] = None
+    items: List[PostPublic]
