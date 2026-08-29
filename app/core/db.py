@@ -13,7 +13,7 @@ if DATABASE_URL.startswith("sqlite"):
 # create_engine crea un motor de base de datos que gestiona la conexión a la base de datos.
 engine = create_engine(
     DATABASE_URL, 
-    echo=True,         # Ponlo en True solo en desarrollo si quieres ver el SQL crudo
+    echo=False,         # Ponlo en True solo en desarrollo si quieres ver el SQL crudo
     pool_size=5,        # Mantiene 5 conexiones listas
     max_overflow=10,    # Permite crear 10 más si hay un pico de tráfico
     future=True, **engine_kwargs

@@ -27,5 +27,9 @@ async def save_file(file: UploadFile = File(...)) -> dict[str, str]:
     return {
         "filename": saved["filename"],
         "content_type": saved["content_type"],
-        "url": saved["url"]
+        "url": saved["url"],
+        # "size": saved["size"],
+        # "chunk_size_used": saved["chunk_size_used"],
+        # "chunk_calls": saved["chunk_calls"],
+        # "chunk_sizes_samples": saved["chunk_sizes_samples"]
     }

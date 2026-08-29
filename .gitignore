@@ -1,6 +1,13 @@
 # folders
 venv/
 **/__pycache__/*
+app/media/**/*.png
+app/media/**/*.jpeg
+app/media/**/*.jpg
+app/media/**/*.webp
 
 # files
 .env
+
+# database
+blog.db
