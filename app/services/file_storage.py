@@ -6,6 +6,7 @@ from fastapi import File, HTTPException, UploadFile, status
 
 MEDIA_DIR = "app/media"
 ALLOW_MIME = ["image/png", "image/jpeg"]
+MAX_MB = int(os.getenv("MAX_UPLOAD_MB", "10"))  # Tamaño máximo de archivo en MB
 
 def ensure_media_dir() -> None:
     # Crea la carpeta media si no existe
