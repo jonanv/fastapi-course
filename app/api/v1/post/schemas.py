@@ -3,14 +3,14 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Annotated, Optional, List, Literal
 
 from ..author.schemas import Author
-from ..tag.schemas import Tag
+from ..tag.schemas import TagPublic
 
 class PostBase(BaseModel):
     title: str
     # content: Optional[str] = "Contenido por defecto"
     content: str
-    # tags: Optional[List[Tag]] = []
-    tags: Optional[List[Tag]] = Field(default_factory=list)
+    # tags: Optional[List[TagPublic]] = []
+    tags: Optional[List[TagPublic]] = Field(default_factory=list)
     author: Optional[Author] = None
     image_url: Optional[str] = None
     
@@ -32,7 +32,7 @@ class PostCreate(BaseModel):
         examples=["Este es un contenido valido por que tiene 10 caracteres o más"]
     )
     # tags: List[Tag] = []
-    tags: List[Tag] = Field(default_factory=list)
+    tags: List[TagPublic] = Field(default_factory=list)
     # author: Optional[Author] = None
     
     
@@ -53,7 +53,7 @@ class PostCreate(BaseModel):
         content: Annotated[str, Form(min_length=10)],
         tags: Annotated[Optional[List[str]], Form()] = None
     ):
-        tags_obj = (Tag(name=t) for t in (tags or []))
+        tags_obj = (TagPublic(name=t) for t in (tags or []))
         return cls(title=title, content=content, tags=tags_obj)
 
 class PostUpdate(BaseModel):

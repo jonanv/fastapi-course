@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict, Field
 
-class Tag(BaseModel):
+class TagPublic(BaseModel):
     name: str = Field(
         ...,
         min_length=3,
