@@ -2,7 +2,7 @@ import os
 import shutil
 import uuid
 
-from fastapi import File, HTTPException, UploadFile, status
+from fastapi import HTTPException, UploadFile, status
 
 MEDIA_DIR = "app/media"
 ALLOW_MIME = ["image/png", "image/jpeg"]
