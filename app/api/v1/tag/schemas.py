@@ -1,6 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 
 class TagPublic(BaseModel):
+    id: int
     name: str = Field(
         ...,
         min_length=3,
@@ -19,3 +20,15 @@ class TagCreate(BaseModel):
         description="Nombre de la etiquetas",
         examples=["Esta es mi primer etiqueta"]
     )
+    
+class TagUpdate(BaseModel):
+    name: str = Field(
+        ...,
+        min_length=3,
+        max_length=30,
+        description="Nombre de la etiquetas",
+        examples=["Esta es mi primer etiqueta"]
+    )
+    
+class TagWithCount(TagPublic):
+    uses: int
