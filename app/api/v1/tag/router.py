@@ -17,7 +17,7 @@ def get_tag(
         examples=1
     ), 
     db: Session = Depends(get_db)
-):
+) -> TagPublic:
     repository = TagRepository(db)
     tag = repository.get(tag_id)
     
