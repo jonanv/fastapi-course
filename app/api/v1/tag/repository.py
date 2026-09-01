@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 
 from app.models.tag import TagORM
@@ -15,9 +15,18 @@ class TagRepository:
         return self.db.execute(tag_find).scalar_one_or_none()
     
     def create_tag(self, name: str) -> TagORM:
-        new_tag = TagORM(name=name)
+        normalize = name.strip().lower()
+                
+        tag_obj = self.db.execute(
+            select(TagORM)
+            .where(func.lower(TagORM.name) ==  normalize) # Para Postgre -> TagORM.name.ilike(normalize)
+        ).scalar_one_or_none()
         
-        self.db.add(new_tag)
+        if tag_obj:
+            return tag_obj
+            
+        tag_obj = TagORM(name=name)
+        self.db.add(tag_obj)
         self.db.flush()
-        self.db.refresh(new_tag)
-        return new_tag
+        
+        return tag_obj
