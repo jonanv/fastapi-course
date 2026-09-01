@@ -108,3 +108,23 @@ def update_tag(
     except SQLAlchemyError:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al actualizar el tag")
+
+@router.delete("/{tag_id}", response_model=None, response_description="Tag eliminado", status_code=status.HTTP_200_OK)
+def delete_tag(
+    tag_id: int,
+    db: Session = Depends(get_db),
+    user = Depends(get_current_user)
+):
+    repository = TagRepository(db)
+    tag = repository.get(tag_id)
+    
+    if not tag:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tag no encontrado")
+    
+    try:
+        repository.delete_tag(tag)
+        db.commit()
+        return { "message": "Tag eliminado" }
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al eliminar el tag")
