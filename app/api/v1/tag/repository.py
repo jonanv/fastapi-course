@@ -13,3 +13,11 @@ class TagRepository:
             .where(TagORM.id == tag_id)
         )
         return self.db.execute(tag_find).scalar_one_or_none()
+    
+    def create_tag(self, name: str) -> TagORM:
+        new_tag = TagORM(name=name)
+        
+        self.db.add(new_tag)
+        self.db.flush()
+        self.db.refresh(new_tag)
+        return new_tag
