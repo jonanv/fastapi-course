@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session, selectinload, joinedload
 from app.models import PostORM, AuthorORM, TagORM
 
 class PostRespository:
-    def __init__(self, db: Session):
+    def __init__(self, db: Session) -> None:
         self.db = db
         
     def get(self, post_id: int) -> Optional[PostORM]:
@@ -84,9 +84,11 @@ class PostRespository:
         return author_obj
     
     def ensure_tag(self, name: str) -> TagORM:
+        normalize = name.strip().lower()
+        
         tag_obj = self.db.execute(
             select(TagORM)
-            .where(TagORM.name.ilike(name))
+            .where(func.lower(TagORM.name) ==  normalize) # Para Postgre -> TagORM.name.ilike(normalize)
         ).scalar_one_or_none()
         
         if tag_obj:
@@ -106,8 +108,12 @@ class PostRespository:
             
         new_post = PostORM(title=title, content=content, image_url=image_url, author=author_obj)
         
-        for tag in tags:
-            tag_obj = self.ensure_tag(tag['name'])  
+        names = tags[0]["name"].split(",")
+        for name in names:
+            name = name.strip().lower()
+            if not name:
+                continue
+            tag_obj = self.ensure_tag(name)  
             new_post.tags.append(tag_obj)
             
         self.db.add(new_post)
