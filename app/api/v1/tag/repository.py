@@ -69,3 +69,8 @@ class TagRepository:
         self.db.flush()
         
         return tag_obj
+    
+    def update_tag(self, tag: TagORM, updates: dict) -> TagORM:
+        for key, value in updates.items():
+            setattr(tag, key, value)
+        return tag
