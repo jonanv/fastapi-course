@@ -4,6 +4,7 @@ from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 
 from app.api.v1.tag.schemas import TagPublic
+from app.models.post import PostORM, post_tags
 from app.models.tag import TagORM
 from app.services.pagination import paginate_query
 
@@ -76,3 +77,27 @@ class TagRepository:
     
     def delete_tag(self, tag: TagORM) -> None:
         self.db.delete(tag)
+        
+    def most_popular(self) -> dict | None:
+        
+        row = (
+            self.db.execute(
+                select(
+                    TagORM.id.label("id"),
+                    TagORM.name.label("name"),
+                    func.count(PostORM.id).label("uses")
+                )
+                .join(post_tags, post_tags.c.tag_id == TagORM.id)
+                .join(PostORM, PostORM.id == post_tags.c.post_id)
+                .group_by(TagORM.id, TagORM.name)
+                .order_by(
+                    func.count(PostORM.id).desc(),      # Primer citerio el id   
+                    func.lower(TagORM.name).asc()       # Desempate del criterio por medio del nombre
+                )
+                .limit(1)
+            )
+            .mappings()   # mappings - Ayuda a convertir a diccionario
+            .first()
+        )
+        
+        return dict(row) if row else None 
