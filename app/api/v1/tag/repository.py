@@ -1,7 +1,11 @@
+from math import ceil
+from typing import Optional
+
 from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 
 from app.models.tag import TagORM
+from app.services.pagination import paginated_query
 
 class TagRepository:
     def __init__(self, db: Session):
@@ -13,6 +17,22 @@ class TagRepository:
             .where(TagORM.id == tag_id)
         )
         return self.db.execute(tag_find).scalar_one_or_none()
+    
+    def list_tags(
+        self,
+        search: Optional[str],
+        order_by: str = "id",
+        direction: str = "asc",
+        page: int = 1,
+        per_page: int = 10
+    ):
+        query = select(TagORM)
+        
+        if search:
+            query = query.where(func.lower(TagORM.name).ilike(f"%{ search.lower() }%"))
+        
+        total, items = paginated_query(order_by, direction, page, per_page, TagORM)
+        return total, items
     
     def create_tag(self, name: str) -> TagORM:
         normalize = name.strip().lower()
