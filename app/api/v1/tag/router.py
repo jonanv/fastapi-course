@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.v1.tag.repository import TagRepository
-from app.api.v1.tag.schemas import TagCreate, TagPublic
+from app.api.v1.tag.schemas import TagCreate, TagPublic, TagUpdate
 from app.core.db import get_db
 from app.core.security import get_current_user
 from app.models.tag import TagORM
@@ -13,7 +13,7 @@ from app.models.tag import TagORM
 router = APIRouter(prefix="/tags", tags=["tag"])
 
 
-@router.get("",  response_model=dict, response_description="Lista de post por paginación")
+@router.get("",  response_model=dict, response_description="Lista de tag por paginación")
 def list_tags(
     page: int = Query(
         1,
@@ -85,3 +85,26 @@ def create_tag(
     except SQLAlchemyError:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al crear el tag")
+    
+@router.put("/{tag_id}", response_model=TagUpdate, response_description="Tag actualizado", response_model_exclude_unset=True, status_code=status.HTTP_200_OK)
+def update_tag(
+    tag_id: int,
+    data: TagUpdate,
+    db: Session = Depends(get_db),
+    user = Depends(get_current_user)
+) -> TagORM:
+    repository = TagRepository(db)
+    tag = repository.get(tag_id)
+    
+    if not tag:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tag no encontrado")
+    
+    try:
+        updates = data.model_dump(exclude_unset=True)
+        tag = repository.update_tag(tag, updates)
+        db.commit()
+        db.refresh(tag)
+        return tag
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al actualizar el tag")
