@@ -1,6 +1,8 @@
-from fastapi import APIRouter, Depends, Path, HTTPException, status
+from typing import Any
+
+from fastapi import APIRouter, Depends, Path, HTTPException, Query, status
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.v1.tag.repository import TagRepository
 from app.api.v1.tag.schemas import TagCreate, TagPublic
@@ -9,6 +11,42 @@ from app.core.security import get_current_user
 from app.models.tag import TagORM
 
 router = APIRouter(prefix="/tags", tags=["tag"])
+
+
+@router.get("",  response_model=dict, response_description="Lista de post por paginación")
+def list_tags(
+    page: int = Query(
+        1,
+        ge=1,
+        description="Número de página (mayor o igual a 1)"
+    ),
+    per_page: int = Query(
+        10,
+        ge=1,
+        le=100,
+        description="Número de resultados (1-50)"
+    ),
+    order_by: str = Query(
+        "id",
+        pattern="^(id|name|created_at)$",
+        description="Campo de orden"
+    ),
+    direction: str = Query(
+        "asc",
+        pattern="^(asc|desc)$",
+        description="Dirección de orden"
+    ),
+    search: str | None = Query(None),
+    db: Session = Depends(get_db)
+) -> dict[str, Any]:
+    repository = TagRepository(db)
+    return repository.list_tags(
+        search=search,
+        order_by=order_by,
+        direction=direction,
+        page=page,
+        per_page=per_page
+    )
 
 @router.get("/{tag_id}", response_model=TagPublic, response_description="Obtener etiqueta por id")
 def get_tag(
