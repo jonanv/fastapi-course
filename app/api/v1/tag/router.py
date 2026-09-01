@@ -86,7 +86,7 @@ def create_tag(
         db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al crear el tag")
     
-@router.put("/{tag_id}", response_model=TagUpdate, response_description="Tag actualizado", response_model_exclude_unset=True, status_code=status.HTTP_200_OK)
+@router.put("/{tag_id}", response_model=TagPublic, response_description="Tag actualizado", response_model_exclude_unset=True, status_code=status.HTTP_200_OK)
 def update_tag(
     tag_id: int,
     data: TagUpdate,
