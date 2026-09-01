@@ -41,7 +41,7 @@ class TagRepository:
         result = paginate_query(
             db=self.db,
             modelORM=TagORM,
-            base_query=search,
+            base_query=query,
             page=page,
             per_page=per_page,
             order_by=order_by,
