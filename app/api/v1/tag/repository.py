@@ -74,3 +74,6 @@ class TagRepository:
         for key, value in updates.items():
             setattr(tag, key, value)
         return tag
+    
+    def delete_tag(self, tag: TagORM) -> None:
+        self.db.delete(tag)
