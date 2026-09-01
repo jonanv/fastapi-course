@@ -1,11 +1,12 @@
 from math import ceil
-from typing import Optional
+from typing import Any, Optional
 
 from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 
+from app.api.v1.tag.schemas import TagPublic
 from app.models.tag import TagORM
-from app.services.pagination import paginated_query
+from app.services.pagination import paginate_query
 
 class TagRepository:
     def __init__(self, db: Session):
@@ -25,14 +26,32 @@ class TagRepository:
         direction: str = "asc",
         page: int = 1,
         per_page: int = 10
-    ):
+    ) -> dict[str, Any]:
         query = select(TagORM)
         
         if search:
             query = query.where(func.lower(TagORM.name).ilike(f"%{ search.lower() }%"))
+            
+        allowed_order = {
+            "id": TagORM.id,
+            "name": func.lower(TagORM.name),
+            "created_at": TagORM.created_at
+        }
         
-        total, items = paginated_query(order_by, direction, page, per_page, TagORM)
-        return total, items
+        result = paginate_query(
+            db=self.db,
+            modelORM=TagORM,
+            base_query=search,
+            page=page,
+            per_page=per_page,
+            order_by=order_by,
+            direction=direction,
+            allowed_order=allowed_order
+        )
+        # Valida o convierte un equivalente del ORM a un TagPublic para evitar el error de Pydentic, evita el error Pydentic serialization error
+        result["items"] = [TagPublic.model_validate(item) for item in result["items"]]
+        
+        return result
     
     def create_tag(self, name: str) -> TagORM:
         normalize = name.strip().lower()
