@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session, selectinload, joinedload
 from app.models import PostORM, AuthorORM, TagORM
 
 class PostRespository:
-    def __init__(self, db: Session):
+    def __init__(self, db: Session) -> None:
         self.db = db
         
     def get(self, post_id: int) -> Optional[PostORM]:

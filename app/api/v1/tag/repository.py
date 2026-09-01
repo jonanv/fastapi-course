@@ -1,4 +1,3 @@
-from math import ceil
 from typing import Any, Optional
 
 from sqlalchemy import select, func
@@ -9,10 +8,10 @@ from app.models.tag import TagORM
 from app.services.pagination import paginate_query
 
 class TagRepository:
-    def __init__(self, db: Session):
+    def __init__(self, db: Session) -> None:
         self.db = db
         
-    def get(self, tag_id: int):
+    def get(self, tag_id: int) -> Optional[TagORM]:
         tag_find = (
             select(TagORM)
             .where(TagORM.id == tag_id)
