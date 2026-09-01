@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Path, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.api.v1.tag import repository
 from app.api.v1.tag.repository import TagRepository
 from app.api.v1.tag.schemas import TagCreate, TagPublic, TagUpdate
 from app.core.db import get_db
@@ -128,3 +129,16 @@ def delete_tag(
     except SQLAlchemyError:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al eliminar el tag")
+    
+@router.get("/popular/top")
+def get_most_popular_tag(
+    db: Session = Depends(get_db),
+    user = Depends(get_current_user)
+):
+    repository = TagRepository(db)
+    row = repository.most_popular()
+    
+    if not row:
+        raise  HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No hay tags en uso")
+    
+    return row
