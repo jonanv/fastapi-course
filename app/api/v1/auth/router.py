@@ -18,8 +18,8 @@ FAKE_USERS = {
 def secure_endpoit(token: str = Depends(oauth2_schema)) -> dict[str, str]:
     return { "message": "Acceso con token", "token_recibido": token }
 
-@router.post("/login", response_model=Token, response_description="Login de usuario")
-async def login(form_data: OAuth2PasswordRequestForm = Depends()) -> Token:
+@router.post("/login", response_model=TokenResponse, response_description="Login de usuario")
+async def login(form_data: OAuth2PasswordRequestForm = Depends()) -> TokenResponse:
     user = FAKE_USERS.get(form_data.username)
     if not user or user["password"] != form_data.password:
         raise HTTPException(
