@@ -1,4 +1,3 @@
-import email
 from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
