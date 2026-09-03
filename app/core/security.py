@@ -7,10 +7,7 @@ from fastapi.security import OAuth2PasswordBearer
 import jwt
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 
-SECRET_KEY = os.getenv("SECRET_KEY", "change-me-in-prod")
-ALGORITHM = os.getenv("ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
-REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
+from app.core.config import Settings
 
 oauth2_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
@@ -37,14 +34,14 @@ def raise_forbidden():
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
     expire = datetime.now(
-        tz=timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        tz=timezone.utc) + (expires_delta or timedelta(minutes=Settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     )
     to_encode.update({ "exp": expire })
-    token = jwt.encode(payload=to_encode, key=SECRET_KEY, algorithm=ALGORITHM)
+    token = jwt.encode(payload=to_encode, key=Settings.JWT_SECRET_KEY, algorithm=Settings.JWT_ALGORITHM)
     return token
 
 def decode_token(token: str) -> dict:
-    payload = jwt.decode(jwt=token, key=SECRET_KEY, algorithms=[ALGORITHM])
+    payload = jwt.decode(jwt=token, key=Settings.JWT_SECRET_KEY, algorithms=[Settings.JWT_ALGORITHM])
     return payload
 
 async def get_current_user(token: str = Depends(oauth2_schema)) -> None:
