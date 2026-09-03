@@ -1,13 +1,14 @@
-import os
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.orm import Session
 import jwt
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 
 from app.core.config import Settings
+from app.core.db import get_db
 
 oauth2_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
@@ -31,20 +32,17 @@ def raise_forbidden():
         detail="No tienes permisos suficientes"
     )
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
-    to_encode = data.copy()
-    expire = datetime.now(
-        tz=timezone.utc) + (expires_delta or timedelta(minutes=Settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    )
-    to_encode.update({ "exp": expire })
-    token = jwt.encode(payload=to_encode, key=Settings.JWT_SECRET_KEY, algorithm=Settings.JWT_ALGORITHM)
+def create_access_token(sub: str, minutes: int | None = None) -> str:
+    expire = datetime.now(tz=timezone.utc) + timedelta(minutes=minutes or Settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    payload = { "sub": sub, "exp": expire }
+    token = jwt.encode(payload=payload, key=Settings.JWT_SECRET_KEY, algorithm=Settings.JWT_ALGORITHM)
     return token
 
 def decode_token(token: str) -> dict:
     payload = jwt.decode(jwt=token, key=Settings.JWT_SECRET_KEY, algorithms=[Settings.JWT_ALGORITHM])
     return payload
 
-async def get_current_user(token: str = Depends(oauth2_schema)) -> None:
+async def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_schema)) -> UserORM:
     try:
         payload = decode_token(token)
         sub: Optional[str] = payload.get("sub")
