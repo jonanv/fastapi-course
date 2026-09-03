@@ -43,8 +43,7 @@ async def get_current_user(db: Session = Depends(get_db), token: str = Depends(o
     try:
         payload = decode_token(token)
         sub: Optional[str] = payload.get("sub")
-        username: Optional[str] = payload.get("username")
-        if not sub or not username:
+        if not sub:
             raise raise_no_authenticated()
         
         user_id = int(sub)
