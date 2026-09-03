@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordBearer
 from pwdlib import PasswordHash
 from sqlalchemy.orm import Session
 import jwt
-from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError, PyJWTError
 
 from ..models.user import UserORM
 from ..core.config import Settings
@@ -35,11 +35,20 @@ async def get_current_user(db: Session = Depends(get_db), token: str = Depends(o
         if not sub or not username:
             raise raise_no_authenticated()
         
-        return { "email": sub, "username": username }
+        user_id = int(sub)
     except ExpiredSignatureError:
         raise raise_expires_token()
     except InvalidTokenError:
         raise raise_no_authenticated()
+    except PyJWTError:
+        raise raise_no_authenticated()
+    
+    user = db.get(UserORM, user_id)
+    
+    if not user or not user.is_active:
+        raise raise_no_authenticated()
+    
+    return user
     
 def hash_password(plain: str) -> str:
     return password_hash.hash(plain)
