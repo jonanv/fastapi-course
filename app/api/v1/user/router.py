@@ -26,7 +26,9 @@ def set_role(
     
     try:
         update_user = repository.set_role(user, payload)
-        return UserPublic.model_validate(update_user)
+        db.commit()
+        db.refresh(update_user)
+        UserPublic.model_validate(update_user)
     except:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al actualizar el rol")
