@@ -4,12 +4,12 @@ from fastapi import APIRouter, Depends, Path, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.api.v1.tag import repository
 from app.api.v1.tag.repository import TagRepository
 from app.api.v1.tag.schemas import TagCreate, TagPublic, TagUpdate
 from app.core.db import get_db
-from app.core.security import get_current_user
+from app.core.security import require_admin, require_editor, require_user
 from app.models.tag import TagORM
+from app.models.user import UserORM
 
 router = APIRouter(prefix="/tags", tags=["tag"])
 
@@ -72,7 +72,7 @@ def get_tag(
 def create_tag(
     tag: TagCreate,
     db: Session = Depends(get_db),
-    user = Depends(get_current_user)
+    _editor: UserORM = Depends(require_editor)
 ) -> TagORM:
     repository =  TagRepository(db)
     
@@ -92,7 +92,7 @@ def update_tag(
     tag_id: int,
     data: TagUpdate,
     db: Session = Depends(get_db),
-    user = Depends(get_current_user)
+    _editor: UserORM = Depends(require_editor)
 ) -> TagORM:
     repository = TagRepository(db)
     tag = repository.get(tag_id)
@@ -114,7 +114,7 @@ def update_tag(
 def delete_tag(
     tag_id: int,
     db: Session = Depends(get_db),
-    user = Depends(get_current_user)
+    _admin: UserORM = Depends(require_admin)
 ):
     repository = TagRepository(db)
     tag = repository.get(tag_id)
@@ -133,7 +133,7 @@ def delete_tag(
 @router.get("/popular/top")
 def get_most_popular_tag(
     db: Session = Depends(get_db),
-    user = Depends(get_current_user)
+    _user: UserORM = Depends(require_user)
 ):
     repository = TagRepository(db)
     row = repository.most_popular()
