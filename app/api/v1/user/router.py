@@ -25,10 +25,10 @@ def set_role(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
     
     try:
-        update_user = repository.set_role(user, payload)
+        update_user = repository.set_role(user, payload.role)
         db.commit()
         db.refresh(update_user)
-        UserPublic.model_validate(update_user)
+        return UserPublic.model_validate(update_user)
     except:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al actualizar el rol")
