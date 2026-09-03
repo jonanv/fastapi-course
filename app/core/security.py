@@ -1,12 +1,14 @@
 from datetime import datetime, timedelta, timezone
 from typing import Literal, Optional
 
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pwdlib import PasswordHash
 from sqlalchemy.orm import Session
 import jwt
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError, PyJWTError
+
+from ..api.v1.user.repository import UserRepository
 
 from ..models.user import UserORM
 from ..core.config import Settings
@@ -16,6 +18,16 @@ from ..services.exception import raise_no_authenticated, raise_expires_token, ra
 password_hash = PasswordHash.recommended()
 oauth2_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
+
+async def auth2_token(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)) -> dict[str, str]:
+    repository = UserRepository(db)
+    user = repository.get_user_by_email(form.username)
+    
+    if not user or verify_password(form.password):
+        raise raise_invalid_credentials()
+    
+    token = create_access_token(sub=str(user.id))
+    return { "access_token": token, "token_type": "bearer" }
 
 def create_access_token(sub: str, minutes: int | None = None) -> str:
     expire = datetime.now(tz=timezone.utc) + timedelta(minutes=minutes or Settings.ACCESS_TOKEN_EXPIRE_MINUTES)
