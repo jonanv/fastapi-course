@@ -9,7 +9,6 @@ from app.core.db import Base
 
 if TYPE_CHECKING:
     from .post import PostORM
-    
 
 class AuthorORM(Base):
     __tablename__ = "authors"

@@ -1,62 +1,82 @@
-import os
 from datetime import datetime, timedelta, timezone
-from typing import Optional
+from typing import Literal, Optional
 
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from pwdlib import PasswordHash
+from sqlalchemy.orm import Session
 import jwt
-from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError, PyJWTError
 
-SECRET_KEY = os.getenv("SECRET_KEY", "change-me-in-prod")
-ALGORITHM = os.getenv("ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
-REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
+from ..api.v1.user.repository import UserRepository
 
-oauth2_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+from ..models.user import UserORM
+from ..core.config import Settings
+from ..core.db import get_db
+from ..services.exception import raise_no_authenticated, raise_expires_token, raise_forbidden, raise_invalid_credentials
 
-def raise_no_authenticated():
-    return HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="No autenticado",
-        headers={ "WWW-Authenticate": "Bearer" }
-    )
+password_hash = PasswordHash.recommended()
+oauth2_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
 
-def raise_expires_token():
-    return HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Token expirado",
-        headers={ "WWW-Authenticate": "Bearer" }
-    )
+
+async def auth2_token(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)) -> dict[str, str]:
+    repository = UserRepository(db)
+    user = repository.get_user_by_email(form.username)
     
-def raise_forbidden():
-    return HTTPException(
-        status_code=status.HTTP_403_FORBIDDEN,
-        detail="No tienes permisos suficientes"
-    )
+    if not user or not verify_password(form.password, user.hashed_password):
+        raise raise_invalid_credentials()
+    
+    token = create_access_token(sub=str(user.id))
+    return { "access_token": token, "token_type": "bearer" }
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
-    to_encode = data.copy()
-    expire = datetime.now(
-        tz=timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    )
-    to_encode.update({ "exp": expire })
-    token = jwt.encode(payload=to_encode, key=SECRET_KEY, algorithm=ALGORITHM)
+def create_access_token(sub: str, minutes: int | None = None) -> str:
+    expire = datetime.now(tz=timezone.utc) + timedelta(minutes=minutes or Settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    payload = { "sub": sub, "exp": expire }
+    token = jwt.encode(payload=payload, key=Settings.JWT_SECRET_KEY, algorithm=Settings.JWT_ALGORITHM)
     return token
 
 def decode_token(token: str) -> dict:
-    payload = jwt.decode(jwt=token, key=SECRET_KEY, algorithms=[ALGORITHM])
+    payload = jwt.decode(jwt=token, key=Settings.JWT_SECRET_KEY, algorithms=[Settings.JWT_ALGORITHM])
     return payload
 
-async def get_current_user(token: str = Depends(oauth2_schema)) -> None:
+async def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_schema)) -> UserORM:
     try:
         payload = decode_token(token)
         sub: Optional[str] = payload.get("sub")
-        username: Optional[str] = payload.get("username")
-        if not sub or not username:
+        if not sub:
             raise raise_no_authenticated()
         
-        return { "email": sub, "username": username }
+        user_id = int(sub)
     except ExpiredSignatureError:
         raise raise_expires_token()
     except InvalidTokenError:
         raise raise_no_authenticated()
+    except PyJWTError:
+        raise raise_invalid_credentials()
+    
+    user = db.get(UserORM, user_id)
+    
+    if not user or not user.is_active:
+        raise raise_invalid_credentials()
+    
+    return user
+    
+def hash_password(plain: str) -> str:
+    return password_hash.hash(plain)
+
+def verify_password(plain: str, hashed: str) -> bool:
+    return password_hash.verify(plain, hashed)
+
+def require_role(min_role: Literal["user", "editor", "admin"]) -> UserORM:
+    order = { "user": 0, "editor": 1, "admin": 2 }
+    
+    def evaluation(user = Depends(get_current_user)) -> UserORM:
+        if order[user.role] < order[min_role]:
+            raise raise_forbidden()
+        return user
+    
+    return evaluation
+
+require_user = require_role("user")
+require_editor = require_role("editor")
+require_admin = require_role("admin")

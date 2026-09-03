@@ -1,14 +1,12 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
-class Token(BaseModel):
+from ..user.schemas import UserPublic
+    
+class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
-    
+    user: UserPublic
+
 class TokenData(BaseModel):
-    sub: str
-    username: str
-    
-class UserPublic(BaseModel):
-    email: str
-    username: str
-    model_config = ConfigDict(from_attributes=True)
+    access_token: str
+    token_type: str = "bearer"
