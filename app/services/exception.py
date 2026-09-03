@@ -19,3 +19,9 @@ def raise_forbidden():
         status_code=status.HTTP_403_FORBIDDEN,
         detail="No tienes permisos suficientes"
     )
+    
+def raise_invalid_credentials():
+    return HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Credenciales inválidas"
+    )

@@ -11,7 +11,7 @@ from jwt.exceptions import ExpiredSignatureError, InvalidTokenError, PyJWTError
 from ..models.user import UserORM
 from ..core.config import Settings
 from ..core.db import get_db
-from ..services.exception import raise_no_authenticated, raise_expires_token, raise_forbidden
+from ..services.exception import raise_no_authenticated, raise_expires_token, raise_forbidden, raise_invalid_credentials
 
 password_hash = PasswordHash.recommended()
 oauth2_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
@@ -41,12 +41,12 @@ async def get_current_user(db: Session = Depends(get_db), token: str = Depends(o
     except InvalidTokenError:
         raise raise_no_authenticated()
     except PyJWTError:
-        raise raise_no_authenticated()
+        raise raise_invalid_credentials()
     
     user = db.get(UserORM, user_id)
     
     if not user or not user.is_active:
-        raise raise_no_authenticated()
+        raise raise_invalid_credentials()
     
     return user
     
