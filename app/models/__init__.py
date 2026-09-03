@@ -8,5 +8,5 @@ __all__ = [
     "TagORM",
     "PostORM",
     "post_tags",
-    "UserORM",
+    "UserORM"
 ]
