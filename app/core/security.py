@@ -3,13 +3,16 @@ from typing import Optional
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from pwdlib import PasswordHash
 from sqlalchemy.orm import Session
 import jwt
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 
-from app.core.config import Settings
-from app.core.db import get_db
+from ..models.user import UserORM
+from ..core.config import Settings
+from ..core.db import get_db
 
+password_hash = PasswordHash.recommended()
 oauth2_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 def raise_no_authenticated():
@@ -55,3 +58,9 @@ async def get_current_user(db: Session = Depends(get_db), token: str = Depends(o
         raise raise_expires_token()
     except InvalidTokenError:
         raise raise_no_authenticated()
+    
+def hash_password(plain: str) -> str:
+    return password_hash.hash(plain)
+
+def verify_password(plain: str, hashed: str) -> bool:
+    return password_hash.verify(plain, hashed)
