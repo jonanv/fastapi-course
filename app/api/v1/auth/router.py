@@ -51,6 +51,6 @@ async def login(payload: UserLogin, db: Session = Depends(get_db)) -> TokenRespo
 async def read_me(current: UserORM = Depends(get_current_user)) -> dict[str, Any]:
     return UserPublic.model_validate(current)
 
-@router.post("/token", response_model=TokenResponse, description="Endpoint para obtener un token de acceso", status_code=status.HTTP_200_OK)
+@router.post("/token", response_model=Any, response_description="Endpoint para obtener un token de acceso", status_code=status.HTTP_200_OK)
 async def token_endpoint(response = Depends(auth2_token)) -> Any:
     return response

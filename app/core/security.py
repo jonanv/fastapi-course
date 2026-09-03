@@ -16,14 +16,14 @@ from ..core.db import get_db
 from ..services.exception import raise_no_authenticated, raise_expires_token, raise_forbidden, raise_invalid_credentials
 
 password_hash = PasswordHash.recommended()
-oauth2_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+oauth2_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
 
 
 async def auth2_token(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)) -> dict[str, str]:
     repository = UserRepository(db)
     user = repository.get_user_by_email(form.username)
     
-    if not user or verify_password(form.password):
+    if not user or not verify_password(form.password, user.hashed_password):
         raise raise_invalid_credentials()
     
     token = create_access_token(sub=str(user.id))
