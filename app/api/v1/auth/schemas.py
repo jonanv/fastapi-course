@@ -6,7 +6,7 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserPublic
-    
+
 class TokenData(BaseModel):
-    sub: str
-    username: str
+    access_token: str
+    token_type: str = "bearer"

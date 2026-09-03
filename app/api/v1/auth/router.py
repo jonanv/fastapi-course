@@ -9,7 +9,7 @@ from app.core.db import get_db
 from app.core.security import auth2_token, create_access_token, get_current_user, hash_password, verify_password
 from app.models.user import UserORM
 from app.services.exception import raise_invalid_credentials
-from .schemas import TokenResponse
+from .schemas import TokenData, TokenResponse
 from ..user.schemas import UserCreate, UserLogin, UserPublic
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -51,6 +51,6 @@ async def login(payload: UserLogin, db: Session = Depends(get_db)) -> TokenRespo
 async def read_me(current: UserORM = Depends(get_current_user)) -> dict[str, Any]:
     return UserPublic.model_validate(current)
 
-@router.post("/token", response_model=Any, response_description="Endpoint para obtener un token de acceso", status_code=status.HTTP_200_OK)
-async def token_endpoint(response = Depends(auth2_token)) -> Any:
+@router.post("/token", response_model=TokenData, response_description="Endpoint para obtener un token de acceso", status_code=status.HTTP_200_OK)
+async def token_endpoint(response = Depends(auth2_token)) -> TokenData:
     return response
