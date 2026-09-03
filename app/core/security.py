@@ -11,29 +11,11 @@ from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 from ..models.user import UserORM
 from ..core.config import Settings
 from ..core.db import get_db
+from ..services.exception import raise_no_authenticated, raise_expires_token, raise_forbidden
 
 password_hash = PasswordHash.recommended()
 oauth2_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
-def raise_no_authenticated():
-    return HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="No autenticado",
-        headers={ "WWW-Authenticate": "Bearer" }
-    )
-
-def raise_expires_token():
-    return HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Token expirado",
-        headers={ "WWW-Authenticate": "Bearer" }
-    )
-    
-def raise_forbidden():
-    return HTTPException(
-        status_code=status.HTTP_403_FORBIDDEN,
-        detail="No tienes permisos suficientes"
-    )
 
 def create_access_token(sub: str, minutes: int | None = None) -> str:
     expire = datetime.now(tz=timezone.utc) + timedelta(minutes=minutes or Settings.ACCESS_TOKEN_EXPIRE_MINUTES)
