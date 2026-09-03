@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from typing import Optional
+from typing import Literal, Optional
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -55,3 +55,17 @@ def hash_password(plain: str) -> str:
 
 def verify_password(plain: str, hashed: str) -> bool:
     return password_hash.verify(plain, hashed)
+
+def require_role(min_role: Literal["user", "editor", "admin"]) -> UserORM:
+    order = { "user": 0, "editor": 1, "admin": 2 }
+    
+    def evaluation(user = Depends(get_current_user)) -> UserORM:
+        if order[user.role] < order[min_role]:
+            raise raise_forbidden()
+        return user
+    
+    return evaluation
+
+require_user = require_role("user")
+require_editor = require_role("editor")
+require_admin = require_role("admin")
