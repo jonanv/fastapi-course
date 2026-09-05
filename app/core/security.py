@@ -11,7 +11,7 @@ from jwt.exceptions import ExpiredSignatureError, InvalidTokenError, PyJWTError
 from ..api.v1.user.repository import UserRepository
 
 from ..models.user import UserORM
-from ..core.config import Settings
+from ..core.config import settings
 from ..core.db import get_db
 from ..services.exception import raise_no_authenticated, raise_expires_token, raise_forbidden, raise_invalid_credentials
 
@@ -30,13 +30,13 @@ async def auth2_token(form: OAuth2PasswordRequestForm = Depends(), db: Session =
     return { "access_token": token, "token_type": "bearer" }
 
 def create_access_token(sub: str, minutes: int | None = None) -> str:
-    expire = datetime.now(tz=timezone.utc) + timedelta(minutes=minutes or Settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now(tz=timezone.utc) + timedelta(minutes=minutes or settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     payload = { "sub": sub, "exp": expire }
-    token = jwt.encode(payload=payload, key=Settings.JWT_SECRET_KEY, algorithm=Settings.JWT_ALGORITHM)
+    token = jwt.encode(payload=payload, key=settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
     return token
 
 def decode_token(token: str) -> dict:
-    payload = jwt.decode(jwt=token, key=Settings.JWT_SECRET_KEY, algorithms=[Settings.JWT_ALGORITHM])
+    payload = jwt.decode(jwt=token, key=settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
     return payload
 
 async def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_schema)) -> UserORM:
