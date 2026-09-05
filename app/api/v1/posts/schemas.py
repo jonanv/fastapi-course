@@ -4,14 +4,14 @@ from typing import Annotated, Optional, List, Literal
 
 from ..users.schemas import UserPublic
 from ..categories.schemas import CategoryPublic
-from ..tags.schemas import TagPublic
+from ..tags.schemas import TagCreate
 
 class PostBase(BaseModel):
     title: str
     # content: Optional[str] = "Contenido por defecto"
     content: str
-    # tags: Optional[List[TagPublic]] = []
-    tags: Optional[List[TagPublic]] = Field(default_factory=list)
+    # tags: Optional[List[TagCreate]] = []
+    tags: Optional[List[TagCreate]] = Field(default_factory=list)
     user: Optional[UserPublic] = None
     image_url: Optional[str] = None
     category: Optional[CategoryPublic] = None
@@ -35,7 +35,7 @@ class PostCreate(BaseModel):
     )
     # tags: List[Tag] = []
     category_id: Optional[int] = None
-    tags: List[TagPublic] = Field(default_factory=list)
+    tags: List[TagCreate] = Field(default_factory=list)
     # author: Optional[Author] = None
     
     
@@ -52,12 +52,12 @@ class PostCreate(BaseModel):
     @classmethod
     def as_form(
         cls, 
-        title: Annotated[str, Form(min_lenght=3)],
+        title: Annotated[str, Form(min_length=3)],
         content: Annotated[str, Form(min_length=10)],
-        category_id: Annotated[int, Form(ge=1)] = None,
+        category_id: Annotated[int, Form(ge=1)],
         tags: Annotated[Optional[List[str]], Form()] = None
     ):
-        tags_obj = (TagPublic(name=t) for t in (tags or []))
+        tags_obj = [TagCreate(name=t) for t in (tags or [])]
         return cls(title=title, content=content, category_id=category_id, tags=tags_obj)
 
 class PostUpdate(BaseModel):
