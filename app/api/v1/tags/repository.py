@@ -3,7 +3,7 @@ from typing import Any, Optional
 from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 
-from app.api.v1.tag.schemas import TagPublic
+from .schemas import TagPublic
 from app.models.post import PostORM, post_tags
 from app.models.tag import TagORM
 from app.services.pagination import paginate_query

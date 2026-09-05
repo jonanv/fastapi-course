@@ -2,8 +2,9 @@ from fastapi import Form
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Annotated, Optional, List, Literal
 
-from ..author.schemas import Author
-from ..tag.schemas import TagPublic
+from ..users.schemas import UserPublic
+from ..categories.schemas import CategoryPublic
+from ..tags.schemas import TagCreate, TagPublic
 
 class PostBase(BaseModel):
     title: str
@@ -11,8 +12,9 @@ class PostBase(BaseModel):
     content: str
     # tags: Optional[List[TagPublic]] = []
     tags: Optional[List[TagPublic]] = Field(default_factory=list)
-    author: Optional[Author] = None
+    user: Optional[UserPublic] = None
     image_url: Optional[str] = None
+    category: Optional[CategoryPublic] = None
     
     model_config = ConfigDict(from_attributes=True)
     
@@ -32,7 +34,8 @@ class PostCreate(BaseModel):
         examples=["Este es un contenido valido por que tiene 10 caracteres o más"]
     )
     # tags: List[Tag] = []
-    tags: List[TagPublic] = Field(default_factory=list)
+    category_id: Optional[int] = None
+    tags: List[TagCreate] = Field(default_factory=list)
     # author: Optional[Author] = None
     
     
@@ -49,12 +52,13 @@ class PostCreate(BaseModel):
     @classmethod
     def as_form(
         cls, 
-        title: Annotated[str, Form(min_lenght=3)],
+        title: Annotated[str, Form(min_length=3)],
         content: Annotated[str, Form(min_length=10)],
+        category_id: Annotated[int, Form(ge=1)],
         tags: Annotated[Optional[List[str]], Form()] = None
     ):
-        tags_obj = (TagPublic(name=t) for t in (tags or []))
-        return cls(title=title, content=content, tags=tags_obj)
+        tags_obj = [TagCreate(name=t) for t in (tags or [])]
+        return cls(title=title, content=content, category_id=category_id, tags=tags_obj)
 
 class PostUpdate(BaseModel):
     title: Optional[str] = Field(

@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, Path, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.api.v1.tag.repository import TagRepository
-from app.api.v1.tag.schemas import TagCreate, TagPublic, TagUpdate
+from .repository import TagRepository
+from .schemas import TagCreate, TagPublic, TagUpdate
 from app.core.db import get_db
 from app.core.security import require_admin, require_editor, require_user
 from app.models.tag import TagORM

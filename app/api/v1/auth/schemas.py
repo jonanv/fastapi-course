@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from ..user.schemas import UserPublic
+from ..users.schemas import UserPublic
     
 class TokenResponse(BaseModel):
     access_token: str

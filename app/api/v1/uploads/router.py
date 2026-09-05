@@ -3,7 +3,7 @@ from typing import Any
 
 from app.services.file_storage import save_upload_image
 
-router = APIRouter(prefix="/upload", tags=["upload"])
+router = APIRouter(prefix="/uploads", tags=["upload"])
 
 
 @router.post("/bytes", response_model="", response_description="")
