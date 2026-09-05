@@ -2,8 +2,8 @@ from fastapi import Form
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Annotated, Optional, List, Literal
 
-from ..author.schemas import Author
-from ..tag.schemas import TagPublic
+from ..authors.schemas import Author
+from ..tags.schemas import TagPublic
 
 class PostBase(BaseModel):
     title: str

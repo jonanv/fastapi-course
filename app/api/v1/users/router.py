@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Path, status
 from sqlalchemy.orm import Session
 
-from app.api.v1.user.repository import UserRepository
+from .repository import UserRepository
 from app.core.db import get_db
 from app.core.security import require_admin
 from app.models.user import UserORM

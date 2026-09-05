@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 import jwt
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError, PyJWTError
 
-from ..api.v1.user.repository import UserRepository
+from ..api.v1.users.repository import UserRepository
 
 from ..models.user import UserORM
 from ..core.config import settings
