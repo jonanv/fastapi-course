@@ -4,14 +4,14 @@ from typing import Annotated, Optional, List, Literal
 
 from ..users.schemas import UserPublic
 from ..categories.schemas import CategoryPublic
-from ..tags.schemas import TagCreate
+from ..tags.schemas import TagCreate, TagPublic
 
 class PostBase(BaseModel):
     title: str
     # content: Optional[str] = "Contenido por defecto"
     content: str
-    # tags: Optional[List[TagCreate]] = []
-    tags: Optional[List[TagCreate]] = Field(default_factory=list)
+    # tags: Optional[List[TagPublic]] = []
+    tags: Optional[List[TagPublic]] = Field(default_factory=list)
     user: Optional[UserPublic] = None
     image_url: Optional[str] = None
     category: Optional[CategoryPublic] = None
