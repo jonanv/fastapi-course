@@ -1,9 +1,11 @@
 from math import ceil
 
 from typing import Optional, List, Tuple
+from fastapi import Depends
 from sqlalchemy import select, func
 from sqlalchemy.orm import Session, selectinload, joinedload
 
+from app.core.security import get_current_user
 from app.models import PostORM, UserORM, TagORM
 
 class PostRespository:
@@ -68,19 +70,12 @@ class PostRespository:
         
         return self.db.execute(post_list).scalars().all()
     
-    def ensure_author(self, username: str, email: str) -> UserORM:
+    def ensure_author(self, name: str, email: str) -> UserORM:
         author_obj = self.db.execute(
             select(UserORM)
             .where(UserORM.email == email)
         ).scalar_one_or_none()
         
-        if author_obj:
-            return author_obj
-        
-        author_obj = UserORM(name=username, email=email)
-        self.db.add(author_obj)
-        self.db.flush()
-            
         return author_obj
     
     def ensure_tag(self, name: str) -> TagORM:
@@ -100,13 +95,13 @@ class PostRespository:
         
         return tag_obj
     
-    def create_post(self, title: str, content: str, image_url: str, author: Optional[dict], tags: List[dict]) -> PostORM:
+    def create_post(self, title: str, content: str, image_url: str, tags: List[dict], category_id: Optional[int], author: UserORM = Depends(get_current_user)) -> PostORM:
         author_obj = None
         
         if author:
-            author_obj = self.ensure_author(author['username'], author['email'])
+            author_obj = self.ensure_author(author.full_name, author.email)
             
-        new_post = PostORM(title=title, content=content, image_url=image_url, author=author_obj)
+        new_post = PostORM(title=title, content=content, image_url=image_url, user=author_obj, category_id=category_id)
         
         names = tags[0]["name"].split(",")
         for name in names:

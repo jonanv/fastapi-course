@@ -2,7 +2,8 @@ from fastapi import Form
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Annotated, Optional, List, Literal
 
-from ..authors.schemas import Author
+from ..users.schemas import UserPublic
+from ..categories.schemas import CategoryPublic
 from ..tags.schemas import TagPublic
 
 class PostBase(BaseModel):
@@ -11,8 +12,9 @@ class PostBase(BaseModel):
     content: str
     # tags: Optional[List[TagPublic]] = []
     tags: Optional[List[TagPublic]] = Field(default_factory=list)
-    author: Optional[Author] = None
+    user: Optional[UserPublic] = None
     image_url: Optional[str] = None
+    category: Optional[CategoryPublic] = None
     
     model_config = ConfigDict(from_attributes=True)
     
@@ -32,6 +34,7 @@ class PostCreate(BaseModel):
         examples=["Este es un contenido valido por que tiene 10 caracteres o más"]
     )
     # tags: List[Tag] = []
+    category_id: Optional[int] = None
     tags: List[TagPublic] = Field(default_factory=list)
     # author: Optional[Author] = None
     
@@ -51,10 +54,11 @@ class PostCreate(BaseModel):
         cls, 
         title: Annotated[str, Form(min_lenght=3)],
         content: Annotated[str, Form(min_length=10)],
+        category_id: Annotated[int, Form(ge=1)] = None,
         tags: Annotated[Optional[List[str]], Form()] = None
     ):
         tags_obj = (TagPublic(name=t) for t in (tags or []))
-        return cls(title=title, content=content, tags=tags_obj)
+        return cls(title=title, content=content, category_id=category_id, tags=tags_obj)
 
 class PostUpdate(BaseModel):
     title: Optional[str] = Field(

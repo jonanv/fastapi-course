@@ -149,6 +149,7 @@ def create_post(
             content=post.content,
             image_url=image_url,
             author=user,
+            category_id=post.category_id,
             tags=[tag.model_dump() for tag in post.tags]
         )
         db.commit()
