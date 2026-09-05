@@ -19,7 +19,6 @@ class CategoryORM(Base):
     slug: Mapped[str] = mapped_column(String(60), unique=True, index=True, nullable=False)
     
     posts: Mapped[List["PostORM"]] = relationship(
-        "PostORM", 
         back_populates="category", # Establece la relación inversa con la clase PostORM
         cascade="all, delete", 
         passive_deletes=True
