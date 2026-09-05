@@ -33,7 +33,7 @@ def create_category(category: CategoryCreate, db: Session = Depends(get_db)) -> 
     exist = repository.get_category_by_slug(category.slug)
     
     if exist:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="El nombre del slug ya existe")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Slug en uso")
     
     try:
         new_category = repository.create_category(
