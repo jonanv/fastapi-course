@@ -4,7 +4,7 @@ from typing import Optional, List, Tuple
 from sqlalchemy import select, func
 from sqlalchemy.orm import Session, selectinload, joinedload
 
-from app.models import PostORM, AuthorORM, TagORM
+from app.models import PostORM, UserORM, TagORM
 
 class PostRespository:
     def __init__(self, db: Session) -> None:
@@ -60,7 +60,7 @@ class PostRespository:
             select(PostORM)
             .options(
                 selectinload(PostORM.tags),
-                joinedload(PostORM.author)
+                joinedload(PostORM.user)
             )
             .where(PostORM.tags.any(func.lower(TagORM.name).in_(normalized_tags_name)))
             .order_by(PostORM.id.asc())
@@ -68,16 +68,16 @@ class PostRespository:
         
         return self.db.execute(post_list).scalars().all()
     
-    def ensure_author(self, username: str, email: str) -> AuthorORM:
+    def ensure_author(self, username: str, email: str) -> UserORM:
         author_obj = self.db.execute(
-            select(AuthorORM)
-            .where(AuthorORM.email == email)
+            select(UserORM)
+            .where(UserORM.email == email)
         ).scalar_one_or_none()
         
         if author_obj:
             return author_obj
         
-        author_obj = AuthorORM(name=username, email=email)
+        author_obj = UserORM(name=username, email=email)
         self.db.add(author_obj)
         self.db.flush()
             
