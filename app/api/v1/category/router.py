@@ -53,7 +53,7 @@ def create_category(category: CategoryCreate, db: Session = Depends(get_db)) -> 
 @router.put("/{category_id}", response_model=CategoryPublic, status_code=status.HTTP_200_OK)
 def update_category(category_id: int, data: CategoryUpdate, db: Session = Depends(get_db)) -> CategoryORM:
     repository = CategoryRepository(db)
-    category = repository.get(category_id)
+    category = repository.get_category(category_id)
     
     if not category:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Categoría no encontrada")
@@ -71,7 +71,7 @@ def update_category(category_id: int, data: CategoryUpdate, db: Session = Depend
 @router.delete("/{category_id}", status_code=status.HTTP_200_OK)
 def delete_category(category_id: int, db: Session = Depends(get_db)) -> dict[str, str]:
     repository = CategoryRepository(db)
-    category = repository.get(category_id)
+    category = repository.get_category(category_id)
     
     if not category:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Categoría no encontrada")
