@@ -4,9 +4,11 @@ from pwdlib import PasswordHash
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.db import SessionLocal
 from app.models.category import CategoryORM
 from app.models.tag import TagORM
 from app.models.user import UserORM
+from app.seeds.data.users import USERS
 
 
 def hash_passwword(plain: str) -> str:
@@ -41,3 +43,32 @@ def _tag_by_name(db: Session, name: str) -> Optional[TagORM]:
         .where(TagORM.name == name)
     )
     return db.execute(query).scalars().first()
+
+def seed_users(db: Session) -> None:
+    with atomic(db):
+        for data in USERS:
+            obj = _user_by_email(db, data["email"])
+            if obj:
+                changed = False
+                if obj.full_name != data.get("full_name"):
+                    obj.full_name = data.get("full_name")
+                    changed = True
+                if data.get("password"):
+                    obj.hashed_password = hash_passwword(data["password"])
+                    changed = True
+                if data.get("role"):
+                    obj.role = data.get("role")
+                    changed = True
+                if changed:
+                    db.add(obj)
+            else:
+                db.add(UserORM(
+                    email=data["email"],
+                    hashed_password=hash_passwword(data["hashed_password"]),
+                    full_name=data["full_name"],
+                    role=data["role"]
+                ))
+                
+def run_users() -> None:
+    with SessionLocal() as db:
+        seed_users(db)
