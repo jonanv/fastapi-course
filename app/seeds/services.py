@@ -90,11 +90,8 @@ def seed_tags(db: Session) -> None:
         for data in TAGS:
             obj = _tag_by_name(db, data["name"])
             if obj:
-                changed = False
                 if obj.name != data.get("name"):
                     obj.name = data.get("name")
-                    changed = True
-                if changed:
                     db.add(obj)
             else:
                 db.add(TagORM(
