@@ -20,7 +20,10 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="FastAPI Application", 
         description="This is a sample FastAPI application.", 
-        version="1.0.0"
+        version="1.0.0",
+        swagger_ui_parameters={
+            "persistAuthorization": True
+        }
     )
     Base.metadata.create_all(bind=engine) # dev
     
