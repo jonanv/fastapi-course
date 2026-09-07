@@ -9,6 +9,7 @@ from app.models.category import CategoryORM
 from app.models.tag import TagORM
 from app.models.user import UserORM
 from app.seeds.data.categories import CATEGORIES
+from app.seeds.data.tags import TAGS
 from app.seeds.data.users import USERS
 
 
@@ -97,3 +98,23 @@ def seed_categories(db: Session) -> None:
 def run_categories() -> None:
     with SessionLocal() as db:
         seed_categories(db)
+        
+def seed_tags(db: Session) -> None:
+    with atomic(db):
+        for data in TAGS:
+            obj = _tag_by_name(db, data["name"])
+            if obj:
+                changed = False
+                if obj.name != data.get("name"):
+                    obj.name = data.get("name")
+                    changed = True
+                if changed:
+                    db.add(obj)
+            else:
+                db.add(TagORM(
+                    name=data["name"]
+                ))
+                
+def run_tags() -> None:
+    with SessionLocal() as db:
+        seed_tags(db)
