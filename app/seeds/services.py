@@ -70,11 +70,7 @@ def seed_users(db: Session) -> None:
                     full_name=data["full_name"],
                     role=data["role"]
                 ))
-                
-def run_users() -> None:
-    with SessionLocal() as db:
-        seed_users(db)
-        
+
 def seed_categories(db: Session) -> None:
     with atomic(db):
         for data in CATEGORIES:
@@ -88,11 +84,7 @@ def seed_categories(db: Session) -> None:
                     name=data["name"],
                     slug=data["slug"]
                 ))
-                
-def run_categories() -> None:
-    with SessionLocal() as db:
-        seed_categories(db)
-        
+
 def seed_tags(db: Session) -> None:
     with atomic(db):
         for data in TAGS:
@@ -108,7 +100,15 @@ def seed_tags(db: Session) -> None:
                 db.add(TagORM(
                     name=data["name"]
                 ))
-                
+
+def run_users() -> None:
+    with SessionLocal() as db:
+        seed_users(db)
+
+def run_categories() -> None:
+    with SessionLocal() as db:
+        seed_categories(db)
+
 def run_tags() -> None:
     with SessionLocal() as db:
         seed_tags(db)
