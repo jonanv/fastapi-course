@@ -8,6 +8,7 @@ from app.core.db import SessionLocal
 from app.models.category import CategoryORM
 from app.models.tag import TagORM
 from app.models.user import UserORM
+from app.seeds.data.categories import CATEGORIES
 from app.seeds.data.users import USERS
 
 
@@ -72,3 +73,27 @@ def seed_users(db: Session) -> None:
 def run_users() -> None:
     with SessionLocal() as db:
         seed_users(db)
+        
+def seed_categories(db: Session) -> None:
+    with atomic(db):
+        for data in CATEGORIES:
+            obj = _category_by_slug(db, data["slug"])
+            if obj:
+                changed = False
+                if obj.name != data.get("name"):
+                    obj.name = data.get("name")
+                    changed = True
+                if data.get("slug"):
+                    obj.slug = data.get("slug")
+                    changed = True
+                if changed:
+                    db.add(obj)
+            else:
+                db.add(CategoryORM(
+                    name=data["name"],
+                    slug=hash_passwword(data["slug"])
+                ))
+                
+def run_categories() -> None:
+    with SessionLocal() as db:
+        seed_categories(db)
