@@ -80,14 +80,8 @@ def seed_categories(db: Session) -> None:
         for data in CATEGORIES:
             obj = _category_by_slug(db, data["slug"])
             if obj:
-                changed = False
                 if obj.name != data.get("name"):
                     obj.name = data.get("name")
-                    changed = True
-                if data.get("slug"):
-                    obj.slug = data.get("slug")
-                    changed = True
-                if changed:
                     db.add(obj)
             else:
                 db.add(CategoryORM(
