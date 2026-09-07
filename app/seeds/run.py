@@ -20,7 +20,7 @@ def tags():
     run_tags()
     typer.echo("Etiquetas cargados")
 
-@app.command("users")
+@app.command("all")
 def all_seeds():
     run_all_seeds()
     typer.echo("Todos los seeds fueron cargados")

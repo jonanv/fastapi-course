@@ -66,7 +66,7 @@ def seed_users(db: Session) -> None:
             else:
                 db.add(UserORM(
                     email=data["email"],
-                    hashed_password=hash_passwword(data["hashed_password"]),
+                    hashed_password=hash_passwword(data["password"]),
                     full_name=data["full_name"],
                     role=data["role"]
                 ))
