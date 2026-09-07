@@ -91,7 +91,7 @@ def seed_categories(db: Session) -> None:
             else:
                 db.add(CategoryORM(
                     name=data["name"],
-                    slug=hash_passwword(data["slug"])
+                    slug=data["slug"]
                 ))
                 
 def run_categories() -> None:
