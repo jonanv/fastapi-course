@@ -28,7 +28,7 @@ def create_app() -> FastAPI:
     )
     Base.metadata.create_all(bind=engine) # dev
     
-    register_middleware(app)
+    register_middleware(app)    # Middleware
     
     app.include_router(auth_router, prefix="/api/v1")
     app.include_router(user_router)
