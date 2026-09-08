@@ -12,3 +12,10 @@ def register_middleware(app: FastAPI) -> None:
         process_time = time.perf_counter() - start
         response.headers["X-Process-Time"] = f"{process_time:.4f} s"
         return response
+    
+    @app.middleware("http")
+    async def log_request(request: Request, call_next):
+        print(f"***ENTRADA: { request.method } { request.url }***")
+        response = await call_next(request)
+        print(f"***SALIDA: { response.status_code }***")
+        return response
