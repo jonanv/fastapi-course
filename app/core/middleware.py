@@ -2,7 +2,12 @@ import time
 from typing import Any
 import uuid
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request, status
+
+
+BLACKLIST = set([
+    # "127.0.0.1"
+])
 
 def register_middleware(app: FastAPI) -> None:
     
@@ -27,3 +32,10 @@ def register_middleware(app: FastAPI) -> None:
         response = await call_next(request)
         response.headers["X-Request-ID"] = request_id
         return response
+    
+    @app.middleware("http")
+    async def block_ip(request: Request, call_next):
+        client_ip = request.client.host
+        if client_ip in BLACKLIST:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Acceso denegado a esta IP")
+        return await call_next(request)
