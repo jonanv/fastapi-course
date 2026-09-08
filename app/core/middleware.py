@@ -3,6 +3,7 @@ from typing import Any
 import uuid
 
 from fastapi import FastAPI, HTTPException, Request, status
+from fastapi.middleware.cors import CORSMiddleware 
 
 
 BLACKLIST = set([
@@ -11,6 +12,15 @@ BLACKLIST = set([
 
 def register_middleware(app: FastAPI) -> None:
     
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],    # Permitir todos los origines
+        allow_credentials=True,
+        allow_methods=["*"],    # Permitir todos los métodos
+        allow_headers=["*"]     # Permitir todos los headers
+    )
+    
+    # Middlewares personalizados
     @app.middleware("http")
     async def add_process_time_header(request: Request, call_next) -> Any:
         start = time.perf_counter()
