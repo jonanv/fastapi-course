@@ -1,5 +1,6 @@
 import time
 from typing import Any
+import uuid
 
 from fastapi import FastAPI, Request
 
@@ -18,4 +19,11 @@ def register_middleware(app: FastAPI) -> None:
         print(f"***ENTRADA: { request.method } { request.url }***")
         response = await call_next(request)
         print(f"***SALIDA: { response.status_code }***")
+        return response
+    
+    @app.middleware("http")
+    async def add_request_id_header(request: Request, call_next):
+        request_id = str(uuid.uuid4())
+        response = await call_next(request)
+        response.headers["X-Request-ID"] = request_id
         return response
