@@ -18,3 +18,12 @@ python3 -m venv venv
 
 py -V:3.14 -m venv venv
 ```
+
+## Seeds
+```
+python -m app.seeds all
+
+python -m app.seeds users
+python -m app.seeds categories
+python -m app.seeds tags
+```

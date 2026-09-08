@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session, selectinload, joinedload
 
 from app.core.security import get_current_user
 from app.models import PostORM, UserORM, TagORM
+from app.utils.slugify_utils import ensure_unique_slug
 
 class PostRespository:
     def __init__(self, db: Session) -> None:
@@ -16,6 +17,13 @@ class PostRespository:
         post_find = (
             select(PostORM)
             .where(PostORM.id == post_id)
+        )
+        return self.db.execute(post_find).scalar_one_or_none()
+    
+    def get_by_slug(self, slug: str) -> Optional[PostORM]:
+        post_find = (
+            select(PostORM)
+            .where(PostORM.slug == slug)
         )
         return self.db.execute(post_find).scalar_one_or_none()
     
@@ -100,8 +108,9 @@ class PostRespository:
         
         if author:
             author_obj = self.ensure_author(author.full_name, author.email)
-            
-        new_post = PostORM(title=title, content=content, image_url=image_url, user=author_obj, category_id=category_id)
+        
+        unique_slug = ensure_unique_slug(self.db, title)
+        new_post = PostORM(title=title, content=content, image_url=image_url, user=author_obj, category_id=category_id, slug=unique_slug)
         
         names = tags[0]["name"].split(",")
         for name in names:
