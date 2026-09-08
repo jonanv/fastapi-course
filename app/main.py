@@ -11,6 +11,7 @@ from app.api.v1.posts.router import router as post_router
 from app.api.v1.tags.router import router as tag_router
 from app.api.v1.categories.router import router as category_router
 from app.api.v1.uploads.router import router as upload_router
+from app.core.middleware import register_middleware
 
 load_dotenv()
 
@@ -26,6 +27,8 @@ def create_app() -> FastAPI:
         }
     )
     Base.metadata.create_all(bind=engine) # dev
+    
+    register_middleware(app)    # Middleware
     
     app.include_router(auth_router, prefix="/api/v1")
     app.include_router(user_router)
