@@ -9,7 +9,7 @@ class Note(SQLModel, table=True):
     title: str
     content: str = ""
     color: Optional[str] = None
-    owner_id: int = Field(default=None, foreign_key="user.id", index=True)
+    owner_id: int = Field(foreign_key="user.id", index=True)
 
 class NoteCreate(SQLModel):
     title: str
