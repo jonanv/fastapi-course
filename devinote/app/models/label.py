@@ -16,7 +16,7 @@ class NoteLabelLink(SQLModel, table=True):
     __table_args__ = (UniqueConstraint("note_id", "label_id", name="uq_note_label"))
         
     id: int = Field(default=None, primary_key=True)
-    node_id: int = Field(foreign_key="note.id", index=True)
+    note_id: int = Field(foreign_key="note.id", index=True)
     label_id: int = Field(foreign_key="label.id", index=True)
 
 class LabelCreate(SQLModel):
