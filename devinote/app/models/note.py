@@ -1,8 +1,8 @@
-from turtle import color
 from typing import Optional
 
 from pydantic import ConfigDict
 from sqlmodel import SQLModel, Field
+
 
 class Note(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
