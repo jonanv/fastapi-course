@@ -1,5 +1,4 @@
-from sqlalchemy import delete
-from sqlmodel import Session, select
+from sqlmodel import Session, select, delete
 
 from devinote.app.models.label import NoteLabelLink
 from devinote.app.models.note import Note
@@ -9,10 +8,10 @@ class NoteRepository:
     def __init__(self, db: Session):
         self.db = db
     
-    def list_owned(self, owned_id: int) -> list[Note]:
+    def list_owned(self, owner_id: int) -> list[Note]:
         query = (
             select(Note)
-            .where(Note.owner_id == owned_id)
+            .where(Note.owner_id == owner_id)
             .order_by(Note.id.desc())
         )
         return self.db.exec(query).all()
@@ -43,7 +42,7 @@ class NoteRepository:
         self.db.delete(note)
         self.db.commit()
     
-    def replace_labels(self, owned_id: int, note_id: int, label_ids: list[int]) -> None:
+    def replace_labels(self, owner_id: int, note_id: int, label_ids: list[int]) -> None:
         query = (
             delete(NoteLabelLink)
             .where(NoteLabelLink.note_id == note_id)
