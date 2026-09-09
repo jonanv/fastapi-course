@@ -1,4 +1,4 @@
-# First steps FastAPI
+# Blog
 
 ### Install
 `pip install "fastapi[standard]"`
