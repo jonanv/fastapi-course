@@ -46,6 +46,12 @@ class ShareRepository:
             
         return self.db.exec(query).first() is not None
     
+    def list_note_ids_shared(self, user_id: int) -> list[int]:
+        return self.db.exec(
+            select(NoteShare.note_id)
+            .where(NoteShare.user_id == user_id)
+        ).all()
+    
     def upsert_label_share(self, label_id: int, user_id: int, role: str) -> LabelShare:
         label_share = self.db.exec(
             select(LabelShare)
@@ -87,3 +93,9 @@ class ShareRepository:
             query = query.where(LabelShare.role == role)
             
         return self.db.exec(query).first() is not None
+    
+    def list_label_ids_shared_with_user(self, user_id: int) -> list[int]:
+        return self.db.exec(
+            select(LabelShare.label_id)
+            .where(LabelShare.user_id == user_id)
+        ).all()
