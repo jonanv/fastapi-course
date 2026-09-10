@@ -46,7 +46,7 @@ class ShareRepository:
             
         return self.db.exec(query).first() is not None
     
-    def list_note_ids_shared(self, user_id: int) -> list[int]:
+    def list_note_ids_shared_directly(self, user_id: int) -> list[int]:
         return self.db.exec(
             select(NoteShare.note_id)
             .where(NoteShare.user_id == user_id)
