@@ -1,7 +1,7 @@
 from sqlmodel import Session, select, delete
 
-from devinote.app.models.label import Label, NoteLabelLink
-from devinote.app.models.share import LabelShare
+from ..models.label import Label, NoteLabelLink
+from ..models.share import LabelShare
 
 
 class LabelRepository:
@@ -48,3 +48,27 @@ class LabelRepository:
         self.db.exec(query)
         self.db.delete(label)
         self.db.commit()
+    
+    def list_ids_for_owner_subset(self, owner_id: int, ids: list[int]) -> list[int]:
+        if not ids:
+            return []
+        
+        return self.db.exec(
+            select(Label.id)
+            .where(Label.owner_id == owner_id, Label.id.in_(set(ids)))
+        ).all()
+    
+    def list_label_ids_for_note(self, note_id: int) -> list[int]:
+            return self.db.exec(
+                select(NoteLabelLink.label_id)
+                .where(NoteLabelLink.note_id == note_id)
+            ).all()
+    
+    def list_note_ids_by_label_ids(self, label_ids: list[int]) -> list[int]:
+        if not label_ids:
+            return []
+        
+        return self.db.exec(
+            select(NoteLabelLink.note_id)
+            .where(NoteLabelLink.label_id.in_(label_ids))
+        ).all()
