@@ -4,7 +4,7 @@ import uuid
 
 from fastapi import HTTPException, UploadFile, status
 
-MEDIA_DIR = "app/media"
+MEDIA_DIR = "blog/app/media"
 ALLOW_MIME = ["image/png", "image/jpeg"]
 MAX_MB = int(os.getenv("MAX_UPLOAD_MB", "10"))  # Tamaño máximo de archivo en MB
 CHUNKS = 1024 * 1024  # Tamaño del bloque de lectura en bytes (1 MB)

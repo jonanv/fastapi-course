@@ -2,9 +2,10 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker, DeclarativeBase
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./blog.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./blog/blog.db")
 print("Conectado a: ", DATABASE_URL)
 
+# Si la base de datos es SQLite, necesitamos pasar un argumento especial para permitir múltiples hilos.
 engine_kwargs = {}
 if DATABASE_URL.startswith("sqlite"):
     engine_kwargs["connect_args"] = { "check_same_thread": False }
@@ -16,7 +17,8 @@ engine = create_engine(
     echo=False,         # Ponlo en True solo en desarrollo si quieres ver el SQL crudo
     pool_size=5,        # Mantiene 5 conexiones listas
     max_overflow=10,    # Permite crear 10 más si hay un pico de tráfico
-    future=True, **engine_kwargs
+    future=True,        # Usa la nueva API de SQLAlchemy 2.0
+    **engine_kwargs     # Pasa argumentos adicionales según el tipo de base de datos (por ejemplo, SQLite necesita check_same_thread=False)
 )
 
 # 2. Fábrica de sesiones

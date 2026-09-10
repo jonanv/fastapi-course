@@ -1,0 +1,126 @@
+from sqlmodel import Session, select, delete
+
+from devinote.app.models.label import Label, NoteLabelLink
+from devinote.app.models.share import NoteShare, LabelShare
+
+
+class ShareRepository:
+    def __init__(self, db: Session):
+        self.db = db
+    
+    def upsert_note_share(self, note_id: int, user_id: int, role: str) -> NoteShare:
+        note_share = self.db.exec(
+            select(NoteShare)
+            .where(NoteShare.note_id == note_id, NoteShare.user_id == user_id)
+        ).first()
+        
+        if note_share:
+            note_share.role = role
+            self.db.add(note_share)
+            self.db.flush()
+            self.db.commit()
+            self.db.refresh(note_share)
+            return note_share
+        
+        note_share = NoteShare(note_id=note_id, user_id=user_id, role=role)
+        self.db.add(note_share)
+        self.db.flush()
+        self.db.commit()
+        self.db.refresh(note_share)
+        return note_share
+    
+    def remove_note_share(self, note_id: int, user_id: int) -> None:
+        self.db.exec(
+            delete(NoteShare)
+            .where(NoteShare.note_id == note_id, NoteShare.user_id == user_id)
+        )
+        self.db.commit()
+    
+    def has_note_share(self, note_id: int, user_id: int, role: str | None = None) -> bool:
+        query = (
+            select(NoteShare)
+            .where(NoteShare.note_id == note_id, NoteShare.user_id == user_id)
+        )
+        
+        if role is not None:
+            query = query.where(NoteShare.role == role)
+            
+        return self.db.exec(query).first() is not None
+    
+    def list_note_ids_shared(self, user_id: int) -> list[int]:
+        return self.db.exec(
+            select(NoteShare.note_id)
+            .where(NoteShare.user_id == user_id)
+        ).all()
+    
+    def upsert_label_share(self, label_id: int, user_id: int, role: str) -> LabelShare:
+        label_share = self.db.exec(
+            select(LabelShare)
+            .where(LabelShare.label_id == label_id, LabelShare.user_id == user_id)
+        ).first()
+        
+        if label_share:
+            label_share.role = role
+            self.db.add(label_share)
+            self.db.flush()
+            self.db.commit()
+            self.db.refresh(label_share)
+            return label_share
+        
+        label_share = LabelShare(label_id=label_id, user_id=user_id, role=role)
+        self.db.add(label_share)
+        self.db.flush()
+        self.db.commit()
+        self.db.refresh(label_share)
+        return label_share
+    
+    def remove_label_share(self, label_id: int, user_id: int) -> None:
+        self.db.exec(
+            delete(LabelShare)
+            .where(LabelShare.label_id == label_id, LabelShare.user_id == user_id)
+        )
+        self.db.commit()
+    
+    def has_any_label_share(self, label_ids: list[int], user_id: int, role: str | None = None) -> bool:
+        if not label_ids:
+            return False
+        
+        query = (
+            select(LabelShare)
+            .where(LabelShare.label_id.in_(label_ids), LabelShare.user_id == user_id)
+        )
+        
+        if role is not None:
+            query = query.where(LabelShare.role == role)
+            
+        return self.db.exec(query).first() is not None
+    
+    def list_label_ids_shared_with_user(self, user_id: int) -> list[int]:
+        return self.db.exec(
+            select(LabelShare.label_id)
+            .where(LabelShare.user_id == user_id)
+        ).all()
+        
+    def list_ids_for_owner_subset(self, owner_id: int, ids: list[int]) -> list[int]:
+        if not ids:
+            return []
+        
+        return self.db.exec(
+            select(Label.id)
+            .where(Label.owner_id == owner_id, Label.id.in_(set(ids)))
+        ).all()
+    
+    def list_label_ids_for_note(self, note_id: int) -> list[int]:
+        return self.db.exec(
+            select(NoteLabelLink.label_id)
+            .where(NoteLabelLink.note_id == note_id)
+        ).all()
+    
+    def list_note_ids_by_label_ids(self, label_ids: list[int]) -> list[int]:
+        if not label_ids:
+            return []
+        
+        return self.db.exec(
+            select(NoteLabelLink.note_id)
+            .where(NoteLabelLink.label_id.in_(label_ids))
+        ).all()

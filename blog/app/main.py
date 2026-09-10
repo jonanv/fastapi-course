@@ -15,7 +15,7 @@ from app.core.middleware import register_middleware
 
 load_dotenv()
 
-MEDIA_DIR = "app/media"
+MEDIA_DIR = "blog/app/media"
 
 def create_app() -> FastAPI:
     app = FastAPI(
