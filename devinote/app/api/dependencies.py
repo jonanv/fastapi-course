@@ -41,3 +41,5 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session)
         raise credentials_exception
     
     return user
+
+CurrentUser = Annotated[User, Depends(get_current_user)]
