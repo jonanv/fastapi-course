@@ -59,7 +59,7 @@ class NoteService:
         
         return sorted(combined.values(), key=lambda note: note.id, reverse=True)
     
-    def create_note(self, owner_id: int, payload: NoteCreate) -> Note:
+    def create(self, owner_id: int, payload: NoteCreate) -> Note:
         note = self.notes.create_note(
             Note(owner_id=owner_id, **payload.model_dump(exclude={"label_ids"}))
         )
@@ -68,7 +68,7 @@ class NoteService:
             self._set_labels(owner_id, note.id, payload.label_ids)
         return note
     
-    def update_note(self, user_id: int, note_id: int, payload: NoteUpdate) -> Note:
+    def update(self, user_id: int, note_id: int, payload: NoteUpdate) -> Note:
         note = self.notes.get_by_id(note_id)
         
         if not note:
@@ -91,7 +91,7 @@ class NoteService:
         
         return note
     
-    def delete_note(self, user_id: int, note_id: int) -> None:
+    def delete(self, user_id: int, note_id: int) -> None:
         note = self.notes.get_by_id(note_id)
         
         if not note:
