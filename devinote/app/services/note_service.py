@@ -3,11 +3,11 @@
 from fastapi import HTTPException, status
 from sqlmodel import Session
 
-from ..models.share import ShareRole
-from ..models.note import Note, NoteCreate, NoteUpdate
-from ..repositories.share_repository import ShareRepository
-from ..repositories.label_repository import LabelRepository
-from ..repositories.note_repository import NoteRepository
+from app.models.share import ShareRole
+from app.models.note import Note, NoteCreate, NoteUpdate
+from app.repositories.share_repository import ShareRepository
+from app.repositories.label_repository import LabelRepository
+from app.repositories.note_repository import NoteRepository
 
 
 class NoteService:

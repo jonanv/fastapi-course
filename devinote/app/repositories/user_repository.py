@@ -1,6 +1,6 @@
 from sqlmodel import Session, select
 
-from devinote.app.models.user import User
+from app.models.user import User
 
 
 class UserRepository:

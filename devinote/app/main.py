@@ -3,9 +3,12 @@ from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 
-from ..app.db.database import init_db
-from ..app.api.routers import auth_router, label_router, note_router, share_router
-from ..app.core.config import settings
+from app.db.database import init_db
+from app.api.routers.auth_router import router as auth_router
+from app.api.routers.note_router import router as note_router
+from app.api.routers.label_router import router as label_router
+from app.api.routers.share_router import router as share_router
+from app.core.config import settings
 
 
 load_dotenv()

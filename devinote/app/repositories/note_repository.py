@@ -1,7 +1,7 @@
 from sqlmodel import Session, select, delete
 
-from devinote.app.models.label import NoteLabelLink
-from devinote.app.models.note import Note
+from app.models.label import NoteLabelLink
+from app.models.note import Note
 
 
 class NoteRepository:

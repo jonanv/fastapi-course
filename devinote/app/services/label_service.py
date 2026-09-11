@@ -1,8 +1,8 @@
 from fastapi import HTTPException, status
 from sqlmodel import Session
 
-from ..models.label import Label, LabelCreate
-from ..repositories.label_repository import LabelRepository
+from app.models.label import Label, LabelCreate
+from app.repositories.label_repository import LabelRepository
 
 
 class LabelService:

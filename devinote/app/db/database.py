@@ -3,7 +3,7 @@ from typing import Iterator
 from sqlmodel import SQLModel, create_engine
 from sqlalchemy.orm import Session, sessionmaker, DeclarativeBase
 
-from ..core.config import settings
+from app.core.config import settings
 
 
 # Si la base de datos es SQLite, necesitamos pasar un argumento especial para permitir múltiples hilos.

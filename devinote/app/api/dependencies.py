@@ -5,9 +5,9 @@ from sqlmodel import Session
 
 from devinote.app.repositories.user_repository import UserRepository
 
-from ..core.security import decode_token
-from ..models.user import User
-from ..db.database import get_session
+from app.core.security import decode_token
+from app.models.user import User
+from app.db.database import get_session
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
