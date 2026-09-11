@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from sqlmodel import Session
 
-from ..models.share import NoteShare, ShareRole
+from ..models.share import LabelShare, NoteShare, ShareRole
 from ..repositories.label_repository import LabelRepository
 from ..repositories.note_repository import NoteRepository
 from ..repositories.share_repository import ShareRepository
@@ -31,4 +31,20 @@ class ShareService:
         
         self.shares.remove_note_share(note_id, target_user_id)
     
+    def share_label(self, owner_id: int, label_id: int, target_user_id: int, role: ShareRole) -> LabelShare:
+        label = self.labels.get_by_id(label_id)
+                
+        if not label or label.owner_id != owner_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Label no encontrada o no autorizado")
+        
+        share = self.shares.upsert_label_share(label_id, target_user_id, role.value if hasattr(role, "value") else role)
+        
+        return share
     
+    def unshare_note(self, owner_id: int, label_id: int, target_user_id: int) -> None:
+        label = self.labels.get_by_id(label_id)
+                
+        if not label or label.owner_id != owner_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Label no encontrada o no autorizado")
+        
+        self.shares.remove_note_share(label_id, target_user_id)
