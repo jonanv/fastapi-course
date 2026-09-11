@@ -1,9 +1,10 @@
 
 
+from fastapi import HTTPException, status
 from sqlmodel import Session
 
 from ..models.share import ShareRole
-from ..models.note import Note, NoteCreate
+from ..models.note import Note, NoteCreate, NoteUpdate
 from ..repositories.share_repository import ShareRepository
 from ..repositories.label_repository import LabelRepository
 from ..repositories.note_repository import NoteRepository
@@ -65,6 +66,29 @@ class NoteService:
         
         if payload.label_ids:
             self._set_labels(owner_id, note.id, payload.label_ids)
+        return note
+    
+    def update_note(self, user_id: int, note_id: int, payload: NoteUpdate) -> Note:
+        note = self.notes.get_by_id(note_id)
+        
+        if not note:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Nota no encontrada")
+        if not self.user_can_edit(user_id, note):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Usuario no autorizado")
+        
+        updates = payload.model_dump(exclude_none=True)
+        label_ids = updates.pop("label_ids", None)
+        
+        for key, value in updates.items:
+            setattr(note, key, value)
+        
+        note = self.notes.update_note(note)
+        
+        if label_ids is not None:
+            if note.owner_id != user_id:
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No existe o no autorizado")
+            self._set_labels(user_id, note.id, label_ids)
+        
         return note
     
     # Helper
