@@ -10,4 +10,4 @@ app/media/**/*.webp
 .env
 
 # database
-blog.db
+devinote.db
