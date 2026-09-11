@@ -19,8 +19,8 @@ DBSession = Annotated[Session, Depends(get_db)]
 # db: DBSession
 
 def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: DBSession) -> User:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED, 
+    credentials_exc = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
         detail="No autorizado",
         headers={
             "WWW-Authenticate": "Bearer"
@@ -31,13 +31,13 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: DBSessio
         payload = decode_token(token)
         user_id = int(payload.get("sub"))
     except Exception:
-        raise credentials_exception
+        raise credentials_exc
     
-    user_repository = UserRepository(db)
-    user = user_repository.get_by_id(user_id)
+    repo = UserRepository(db)
+    user = repo.get_by_id(user_id)
     
     if not user:
-        raise credentials_exception
+        raise credentials_exc
     
     return user
 
