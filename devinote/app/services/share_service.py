@@ -41,7 +41,7 @@ class ShareService:
         
         return share
     
-    def unshare_note(self, owner_id: int, label_id: int, target_user_id: int) -> None:
+    def unshare_label(self, owner_id: int, label_id: int, target_user_id: int) -> None:
         label = self.labels.get_by_id(label_id)
                 
         if not label or label.owner_id != owner_id:

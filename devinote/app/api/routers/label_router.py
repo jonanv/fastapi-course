@@ -16,6 +16,6 @@ def create_label(payload: LabelCreate, db: DBSession, user: CurrentUser) -> Labe
     return LabelService(db).create(user.id, payload)
 
 @router.delete("/{label_id}", response_description="Eliminar etiqueta", status_code=status.HTTP_200_OK)
-def delete_note(label_id: int, db: DBSession, user: CurrentUser) -> dict[str, str]:
+def delete_label(label_id: int, db: DBSession, user: CurrentUser) -> dict[str, str]:
     LabelService(db).delete(user.id, label_id)
     return { "message": "Etiqueta eliminada" }
