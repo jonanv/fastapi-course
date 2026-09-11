@@ -79,7 +79,7 @@ class NoteService:
         updates = payload.model_dump(exclude_none=True)
         label_ids = updates.pop("label_ids", None)
         
-        for key, value in updates.items:
+        for key, value in updates.items():
             setattr(note, key, value)
         
         note = self.notes.update_note(note)

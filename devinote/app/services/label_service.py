@@ -23,7 +23,7 @@ class LabelService:
         
         if not label:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="La etiqueta no existe")
-        if not owner_id != label.owner_id:
+        if owner_id != label.owner_id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No autorizado")
         
         self.repository.delete_label(label)
