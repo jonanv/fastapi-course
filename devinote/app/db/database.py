@@ -1,7 +1,6 @@
 import os
 from typing import Iterator
-from sqlmodel import SQLModel, create_engine
-from sqlalchemy.orm import Session, sessionmaker, DeclarativeBase
+from sqlmodel import SQLModel, create_engine, Session
 
 from app.core.config import settings
 
