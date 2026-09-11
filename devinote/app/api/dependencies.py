@@ -18,7 +18,7 @@ def get_db() -> Session:
 DBSession = Annotated[Session, Depends(get_db)]
 # db: DBSession
 
-def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session) -> User:
+def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: DBSession) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED, 
         detail="No autorizado",
