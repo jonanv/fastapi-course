@@ -3,7 +3,7 @@
 from sqlmodel import Session
 
 from ..models.share import ShareRole
-from ..models.note import Note
+from ..models.note import Note, NoteCreate
 from ..repositories.share_repository import ShareRepository
 from ..repositories.label_repository import LabelRepository
 from ..repositories.note_repository import NoteRepository
@@ -57,3 +57,17 @@ class NoteService:
             combined.setdefault(note.id, note)
         
         return sorted(combined.values(), key=lambda note: note.id, reverse=True)
+    
+    def create_note(self, owner_id: int, payload: NoteCreate) -> Note:
+        note = self.notes.create_note(
+            Note(owner_id=owner_id, **payload.model_dump(exclude={"label_ids"}))
+        )
+        
+        if payload.label_ids:
+            self._set_labels(owner_id, note.id, payload.label_ids)
+        return note
+    
+    # Helper
+    def _set_labels(self, owner_id: int, note_id: int, label_ids: list[int]) -> None:
+        valid_ids = self.labels.list_ids_for_owner_subset(owner_id, label_ids or [])
+        self.notes.replace_labels(owner_id, note_id, valid_ids)
