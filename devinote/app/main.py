@@ -29,7 +29,7 @@ def create_app() -> FastAPI:
         }
     )
     
-    app.middleware(
+    app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],    # Permitir todos los origines
         allow_credentials=True, # Permitir credenciales
