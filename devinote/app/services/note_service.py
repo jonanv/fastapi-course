@@ -91,6 +91,16 @@ class NoteService:
         
         return note
     
+    def delete_note(self, user_id: int, note_id: int) -> None:
+        note = self.notes.get_by_id(note_id)
+        
+        if not note:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Nota no encontrada")
+        if note.owner_id != user_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No existe o no autorizado")
+        
+        self.notes.delete_note(note)
+    
     # Helper
     def _set_labels(self, owner_id: int, note_id: int, label_ids: list[int]) -> None:
         valid_ids = self.labels.list_ids_for_owner_subset(owner_id, label_ids or [])
