@@ -15,7 +15,7 @@ class ConnectionManager:
         self.active_connections[websocket] = username
         await self.broadcast(f"🟢 { username } se ha conectado.")
     
-    async def desconnect(self, websocket: WebSocket):
+    async def disconnect(self, websocket: WebSocket):
         """Método para desconexión"""
         username = self.active_connections.get(websocket, "Usuario")
         self.active_connections.pop(websocket, None)
@@ -27,3 +27,17 @@ class ConnectionManager:
             await connection.send_text(message)
 
 manager = ConnectionManager()
+
+@app.websocket("/ws/chat")
+async def websocket_chat(websocket: WebSocket, username: str):
+    """Maneja la conexión individual en un usuario"""
+    # ws://.../ws/chat?username=Ricardo
+    
+    await manager.connect(websocket, username)
+    
+    try:
+        while True:
+            data = await websocket.receive_text()
+            await manager.broadcast(f"{ username }: { data }")
+    except WebSocketDisconnect:
+        await manager.disconnect(websocket)
