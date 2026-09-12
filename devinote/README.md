@@ -28,6 +28,9 @@ py -V:3.14 -m venv venv
 ### Run migration
 `alembic upgrade head`
 
+### Run migration downgrade previous version (Comando para ejecutar migracion version anterior, revertir el ultimo cambio)
+`alembic downgrade -1`
+
 ## Stack
 1. Python
 2. FastAPI
