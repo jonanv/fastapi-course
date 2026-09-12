@@ -24,7 +24,8 @@ engine = create_engine(
 # Crear todas las tablas en la base de datos, devuelve un objeto MetaData que contiene todas las tablas y relaciones definidas en tus modelos SQLModel. Luego, create_all() crea esas tablas en la base de datos si no existen.
 def init_db() -> None:
     """Inicializa la base de datos creando todas las tablas definidas en los modelos SQLModel."""
-    SQLModel.metadata.create_all(engine) # dev, solo para desarrollo
+    if settings.ENVIRONMENT == "DEV":
+        SQLModel.metadata.create_all(engine) # dev, solo para desarrollo
 
 def get_session() -> Iterator[Session]:
     """Devuelve una sesión de base de datos. Úsalo con 'with' para asegurarte de que se cierre correctamente y automaticamente evitando fugas de conexión."""

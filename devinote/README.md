@@ -19,6 +19,18 @@ python3 -m venv venv
 py -V:3.14 -m venv venv
 ```
 
+### Init Alembic
+`alembic init alembic`
+
+#### Migrate
+`alembic revision --autogenerate -m "init schema"`
+
+### Run migration
+`alembic upgrade head`
+
+### Run migration downgrade previous version (Comando para ejecutar migracion version anterior, revertir el ultimo cambio)
+`alembic downgrade -1`
+
 ## Stack
 1. Python
 2. FastAPI
