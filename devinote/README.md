@@ -22,6 +22,9 @@ py -V:3.14 -m venv venv
 ### Init Alembic
 `alembic init alembic`
 
+#### Migrate
+`alembic revision --autogenerate -m "init schema"`
+
 ## Stack
 1. Python
 2. FastAPI
