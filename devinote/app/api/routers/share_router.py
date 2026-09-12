@@ -35,4 +35,4 @@ def share_label(label_id: int, payload: ShareRequest, db: DBSession, user: Curre
 @router.delete("/labels/{label_id}", response_description="Eliminar etiqueta compartida", status_code=status.HTTP_200_OK)
 def unshare_label(label_id: int, target_user_id: int, db: DBSession, user: CurrentUser) -> dict[str, str]:
     ShareService(db).unshare_label(user.id, label_id, target_user_id)
-    return { "message": "Nota compartida eliminada" }
+    return { "message": "Etiqueta compartida eliminada" }

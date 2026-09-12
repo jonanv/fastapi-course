@@ -47,4 +47,4 @@ class ShareService:
         if not label or label.owner_id != owner_id:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Label no encontrada o no autorizado")
         
-        self.shares.remove_note_share(label_id, target_user_id)
+        self.shares.remove_label_share(label_id, target_user_id)
