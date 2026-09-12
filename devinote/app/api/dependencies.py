@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Iterator
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlmodel import Session
@@ -11,8 +11,8 @@ from app.db.database import get_session
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
 
-def get_db() -> Session:
-    return next(get_session())
+def get_db() -> Iterator[Session]:
+    yield from get_session()
 
 # db: Session = Depedens(get_db)
 DBSession = Annotated[Session, Depends(get_db)]
