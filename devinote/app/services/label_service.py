@@ -18,7 +18,7 @@ class LabelService:
         
         return self.repository.create_label(owner_id, payload.name)
     
-    def delete(self, owner_id, label_id) -> None:
+    def delete(self, owner_id: int, label_id: int) -> None:
         label = self.repository.get_by_id(label_id)
         
         if not label:
