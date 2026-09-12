@@ -19,6 +19,9 @@ python3 -m venv venv
 py -V:3.14 -m venv venv
 ```
 
+### Init Alembic
+`alembic init alembic`
+
 ## Stack
 1. Python
 2. FastAPI
