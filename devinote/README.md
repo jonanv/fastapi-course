@@ -25,6 +25,9 @@ py -V:3.14 -m venv venv
 #### Migrate
 `alembic revision --autogenerate -m "init schema"`
 
+### Run migration
+`alembic upgrade head`
+
 ## Stack
 1. Python
 2. FastAPI
