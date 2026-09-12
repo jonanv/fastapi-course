@@ -1,6 +1,4 @@
 from logging.config import fileConfig
-import os
-from dotenv import load_dotenv
 
 from sqlalchemy import create_engine
 from sqlalchemy import pool
@@ -8,6 +6,7 @@ from sqlalchemy import pool
 from alembic import context
 from sqlmodel import SQLModel
 
+from app.core.config import settings
 from app.models.user import User
 from app.models.label import Label, NoteLabelLink
 from app.models.note import Note
@@ -26,9 +25,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-load_dotenv()
-
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = settings.DATABASE_URL
 
 target_metadata = SQLModel.metadata
 
